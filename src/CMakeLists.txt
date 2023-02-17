@@ -4,8 +4,7 @@ set(BINARY ${CMAKE_PROJECT_NAME})
 include(FetchContent)
 FetchContent_Declare(
   FlatBuffers
-  GIT_REPOSITORY https://github.com/google/flatbuffers.git
-  GIT_TAG v23.1.21
+  URL https://github.com/google/flatbuffers/archive/refs/tags/v23.1.21.tar.gz
 )
 FetchContent_MakeAvailable(FlatBuffers)
 
