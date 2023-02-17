@@ -25,4 +25,5 @@ set(BINARY ${CMAKE_PROJECT_NAME}_bench)
 add_executable(${BINARY} simple_message.cpp batch_messages.cpp simple_json.cpp)
 add_test(NAME ${BINARY} COMMAND ${BINARY})
 
-target_link_libraries(${BINARY} PUBLIC ${CMAKE_PROJECT_NAME}_lib benchmark::benchmark nlohmann_json::nlohmann_json)
+target_link_libraries(${BINARY} PUBLIC ${CMAKE_PROJECT_NAME}_lib 
+  benchmark::benchmark nlohmann_json::nlohmann_json)

@@ -9,7 +9,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(FlatBuffers)
 
-add_library(${BINARY}_lib STATIC lib.cpp lib.h player_events_generated.h util_functions.h)
+add_library(${BINARY}_lib STATIC lib.cpp lib.h player_events_generated.h)
 
 target_compile_features(${BINARY}_lib PUBLIC cxx_std_11)
 target_link_libraries(${BINARY}_lib PUBLIC FlatBuffers)
