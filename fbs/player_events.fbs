@@ -1,0 +1,33 @@
+namespace MyGame.Events;
+
+struct UUID {
+  a: ulong;
+  b: ulong; 
+}
+ 
+struct Point3D {
+  x: float;
+  y: float;
+  z: float;
+}
+
+table PlayerSpawn {
+  player_id: UUID;
+  pos:Point3D;
+}
+
+table PlayerMoved {
+  player_id: UUID;
+  pos1: Point3D;
+  pos2: Point3D;
+}
+
+union Event {PlayerSpawn, PlayerMoved}
+
+table PlayerEvent {
+    ts: uint64;
+    event: Event;
+    event_batch: [Event];
+}
+
+root_type PlayerEvent;

@@ -1,0 +1,14 @@
+{
+    "files.associations": {
+        "initializer_list": "cpp",
+        "functional": "cpp",
+        "chrono": "cpp",
+        "vector": "cpp",
+        "__locale": "cpp",
+        "locale": "cpp",
+        "thread": "cpp"
+    },
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "editor.formatOnSave": true,
+    "cmake.buildDirectory": "${workspaceFolder}/build/${buildType}/${buildKitHostOs}"
+}
