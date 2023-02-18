@@ -1,11 +1,11 @@
-FROM ubuntu:22.04
+FROM rust:bullseye
 
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Install base packages
 RUN set -ex && \
     apt-get update && \
-    apt-get install -y lsb-release wget software-properties-common
+    apt-get install -y lsb-release wget software-properties-common git
 
 # Install clang toolchain version 14
 RUN wget https://apt.llvm.org/llvm.sh &&\
@@ -14,5 +14,4 @@ RUN wget https://apt.llvm.org/llvm.sh &&\
 
 # Install git, cmake, gdb
 RUN set -ex && \
-    apt-get update && \
-    apt-get install -y git cmake gdb
+    apt-get install -y cmake gdb curl
