@@ -5,9 +5,15 @@
 #include <stdint.h>
 
 namespace MyGame {
-uint8_t *CreatePlayerMovedBuffer(const Events::UUID &id,
-                                 const Events::Point3D &ini,
-                                 const Events::Point3D &end);
+
+struct ByteBuffer {
+  uint8_t *data;
+  uint32_t size;
+};
+
+ByteBuffer CreatePlayerMovedBuffer(const Events::UUID &id,
+                                   const Events::Point3D &ini,
+                                   const Events::Point3D &end);
 
 using PlayerMovementTuple =
     std::tuple<Events::UUID, Events::Point3D, Events::Point3D>;

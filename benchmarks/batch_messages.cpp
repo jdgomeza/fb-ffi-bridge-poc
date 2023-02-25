@@ -47,10 +47,10 @@ static void BM_PositionBatchCreationReuseBuilder(benchmark::State &state) {
   state.SetItemsProcessed(state.iterations());
 }
 
-BENCHMARK(BM_PositionBatchCreation)->Range(2, 2 << 10)->Complexity();
-BENCHMARK(BM_PositionBatchCreation)->Range(2, 2 << 10)->Threads(4);
+BENCHMARK(BM_PositionBatchCreation)->Range(1, 2 << 10)->Complexity();
+BENCHMARK(BM_PositionBatchCreation)->Range(1, 2 << 10)->Threads(4);
 BENCHMARK(BM_PositionBatchCreationReuseBuilder)
-    ->Range(2, 2 << 10)
+    ->Range(1, 4 << 10)
     ->Complexity();
 
 } // namespace benchmark

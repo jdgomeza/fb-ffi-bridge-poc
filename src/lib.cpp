@@ -1,15 +1,16 @@
-#include "lib.h"
-#include "player_events_generated.h"
+#include <chrono>
 #include <math.h>
 #include <random>
 #include <stdint.h>
-#include <chrono>
+
+#include "lib.h"
+#include "player_events_generated.h"
 
 using namespace MyGame;
 
-uint8_t *MyGame::CreatePlayerMovedBuffer(const Events::UUID &id,
-                                         const Events::Point3D &ini,
-                                         const Events::Point3D &end) {
+ByteBuffer MyGame::CreatePlayerMovedBuffer(const Events::UUID &id,
+                                           const Events::Point3D &ini,
+                                           const Events::Point3D &end) {
   flatbuffers::FlatBufferBuilder builder(1024);
   auto pm = Events::CreatePlayerMoved(builder, &id, &ini, &end);
 
@@ -17,12 +18,11 @@ uint8_t *MyGame::CreatePlayerMovedBuffer(const Events::UUID &id,
                                          Events::Event_PlayerMoved, pm.Union());
   builder.Finish(event);
 
-  return builder.GetBufferPointer();
+  return ByteBuffer{builder.GetBufferPointer(), builder.GetSize()};
 }
 
-uint8_t *MyGame::CreateArrayPlayerMovedBuffer(
-    std::vector<std::tuple<Events::UUID, Events::Point3D, Events::Point3D>>
-        players) {
+uint8_t *
+MyGame::CreateArrayPlayerMovedBuffer(std::vector<PlayerMovementTuple> players) {
   flatbuffers::FlatBufferBuilder builder(1024);
   return CreateArrayPlayerMovedBuffer(builder, players);
 }
