@@ -32,6 +32,10 @@ struct PlayerEvent;
 struct PlayerEventBuilder;
 struct PlayerEventT;
 
+struct EventBatch;
+struct EventBatchBuilder;
+struct EventBatchT;
+
 enum Event : uint8_t {
   Event_NONE = 0,
   Event_PlayerSpawn = 1,
@@ -362,7 +366,6 @@ struct PlayerEventT : public ::flatbuffers::NativeTable {
   }
   uint64_t ts = 0;
   MyGame::Events::EventUnion event{};
-  std::vector<MyGame::Events::EventUnion> event_batch{};
 };
 
 struct PlayerEvent FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -374,9 +377,7 @@ struct PlayerEvent FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TS = 4,
     VT_EVENT_TYPE = 6,
-    VT_EVENT = 8,
-    VT_EVENT_BATCH_TYPE = 10,
-    VT_EVENT_BATCH = 12
+    VT_EVENT = 8
   };
   uint64_t ts() const {
     return GetField<uint64_t>(VT_TS, 0);
@@ -394,23 +395,12 @@ struct PlayerEvent FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const MyGame::Events::PlayerMoved *event_as_PlayerMoved() const {
     return event_type() == MyGame::Events::Event_PlayerMoved ? static_cast<const MyGame::Events::PlayerMoved *>(event()) : nullptr;
   }
-  const ::flatbuffers::Vector<uint8_t> *event_batch_type() const {
-    return GetPointer<const ::flatbuffers::Vector<uint8_t> *>(VT_EVENT_BATCH_TYPE);
-  }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *event_batch() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *>(VT_EVENT_BATCH);
-  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_TS, 8) &&
            VerifyField<uint8_t>(verifier, VT_EVENT_TYPE, 1) &&
            VerifyOffset(verifier, VT_EVENT) &&
            VerifyEvent(verifier, event(), event_type()) &&
-           VerifyOffset(verifier, VT_EVENT_BATCH_TYPE) &&
-           verifier.VerifyVector(event_batch_type()) &&
-           VerifyOffset(verifier, VT_EVENT_BATCH) &&
-           verifier.VerifyVector(event_batch()) &&
-           VerifyEventVector(verifier, event_batch(), event_batch_type()) &&
            verifier.EndTable();
   }
   PlayerEventT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -439,12 +429,6 @@ struct PlayerEventBuilder {
   void add_event(::flatbuffers::Offset<void> event) {
     fbb_.AddOffset(PlayerEvent::VT_EVENT, event);
   }
-  void add_event_batch_type(::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> event_batch_type) {
-    fbb_.AddOffset(PlayerEvent::VT_EVENT_BATCH_TYPE, event_batch_type);
-  }
-  void add_event_batch(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<void>>> event_batch) {
-    fbb_.AddOffset(PlayerEvent::VT_EVENT_BATCH, event_batch);
-  }
   explicit PlayerEventBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -460,37 +444,88 @@ inline ::flatbuffers::Offset<PlayerEvent> CreatePlayerEvent(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t ts = 0,
     MyGame::Events::Event event_type = MyGame::Events::Event_NONE,
-    ::flatbuffers::Offset<void> event = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> event_batch_type = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<void>>> event_batch = 0) {
+    ::flatbuffers::Offset<void> event = 0) {
   PlayerEventBuilder builder_(_fbb);
   builder_.add_ts(ts);
-  builder_.add_event_batch(event_batch);
-  builder_.add_event_batch_type(event_batch_type);
   builder_.add_event(event);
   builder_.add_event_type(event_type);
   return builder_.Finish();
 }
 
-inline ::flatbuffers::Offset<PlayerEvent> CreatePlayerEventDirect(
+::flatbuffers::Offset<PlayerEvent> CreatePlayerEvent(::flatbuffers::FlatBufferBuilder &_fbb, const PlayerEventT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct EventBatchT : public ::flatbuffers::NativeTable {
+  typedef EventBatch TableType;
+  static FLATBUFFERS_CONSTEXPR_CPP11 const char *GetFullyQualifiedName() {
+    return "MyGame.Events.EventBatchT";
+  }
+  std::vector<std::unique_ptr<MyGame::Events::PlayerEventT>> event_batch{};
+  EventBatchT() = default;
+  EventBatchT(const EventBatchT &o);
+  EventBatchT(EventBatchT&&) FLATBUFFERS_NOEXCEPT = default;
+  EventBatchT &operator=(EventBatchT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct EventBatch FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef EventBatchT NativeTableType;
+  typedef EventBatchBuilder Builder;
+  static FLATBUFFERS_CONSTEXPR_CPP11 const char *GetFullyQualifiedName() {
+    return "MyGame.Events.EventBatch";
+  }
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_EVENT_BATCH = 4
+  };
+  const ::flatbuffers::Vector<::flatbuffers::Offset<MyGame::Events::PlayerEvent>> *event_batch() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<MyGame::Events::PlayerEvent>> *>(VT_EVENT_BATCH);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_EVENT_BATCH) &&
+           verifier.VerifyVector(event_batch()) &&
+           verifier.VerifyVectorOfTables(event_batch()) &&
+           verifier.EndTable();
+  }
+  EventBatchT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(EventBatchT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<EventBatch> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const EventBatchT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct EventBatchBuilder {
+  typedef EventBatch Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_event_batch(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<MyGame::Events::PlayerEvent>>> event_batch) {
+    fbb_.AddOffset(EventBatch::VT_EVENT_BATCH, event_batch);
+  }
+  explicit EventBatchBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<EventBatch> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<EventBatch>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<EventBatch> CreateEventBatch(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint64_t ts = 0,
-    MyGame::Events::Event event_type = MyGame::Events::Event_NONE,
-    ::flatbuffers::Offset<void> event = 0,
-    const std::vector<uint8_t> *event_batch_type = nullptr,
-    const std::vector<::flatbuffers::Offset<void>> *event_batch = nullptr) {
-  auto event_batch_type__ = event_batch_type ? _fbb.CreateVector<uint8_t>(*event_batch_type) : 0;
-  auto event_batch__ = event_batch ? _fbb.CreateVector<::flatbuffers::Offset<void>>(*event_batch) : 0;
-  return MyGame::Events::CreatePlayerEvent(
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<MyGame::Events::PlayerEvent>>> event_batch = 0) {
+  EventBatchBuilder builder_(_fbb);
+  builder_.add_event_batch(event_batch);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<EventBatch> CreateEventBatchDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const std::vector<::flatbuffers::Offset<MyGame::Events::PlayerEvent>> *event_batch = nullptr) {
+  auto event_batch__ = event_batch ? _fbb.CreateVector<::flatbuffers::Offset<MyGame::Events::PlayerEvent>>(*event_batch) : 0;
+  return MyGame::Events::CreateEventBatch(
       _fbb,
-      ts,
-      event_type,
-      event,
-      event_batch_type__,
       event_batch__);
 }
 
-::flatbuffers::Offset<PlayerEvent> CreatePlayerEvent(::flatbuffers::FlatBufferBuilder &_fbb, const PlayerEventT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+::flatbuffers::Offset<EventBatch> CreateEventBatch(::flatbuffers::FlatBufferBuilder &_fbb, const EventBatchT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 inline PlayerSpawnT::PlayerSpawnT(const PlayerSpawnT &o)
       : player_id((o.player_id) ? new MyGame::Events::UUID(*o.player_id) : nullptr),
@@ -589,8 +624,6 @@ inline void PlayerEvent::UnPackTo(PlayerEventT *_o, const ::flatbuffers::resolve
   { auto _e = ts(); _o->ts = _e; }
   { auto _e = event_type(); _o->event.type = _e; }
   { auto _e = event(); if (_e) _o->event.value = MyGame::Events::EventUnion::UnPack(_e, event_type(), _resolver); }
-  { auto _e = event_batch_type(); if (_e) { _o->event_batch.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->event_batch[_i].type = static_cast<MyGame::Events::Event>(_e->Get(_i)); } } else { _o->event_batch.resize(0); } }
-  { auto _e = event_batch(); if (_e) { _o->event_batch.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->event_batch[_i].value = MyGame::Events::EventUnion::UnPack(_e->Get(_i), event_batch_type()->GetEnum<Event>(_i), _resolver); } } else { _o->event_batch.resize(0); } }
 }
 
 inline ::flatbuffers::Offset<PlayerEvent> PlayerEvent::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const PlayerEventT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -604,14 +637,46 @@ inline ::flatbuffers::Offset<PlayerEvent> CreatePlayerEvent(::flatbuffers::FlatB
   auto _ts = _o->ts;
   auto _event_type = _o->event.type;
   auto _event = _o->event.Pack(_fbb);
-  auto _event_batch_type = _o->event_batch.size() ? _fbb.CreateVector<uint8_t>(_o->event_batch.size(), [](size_t i, _VectorArgs *__va) { return static_cast<uint8_t>(__va->__o->event_batch[i].type); }, &_va) : 0;
-  auto _event_batch = _o->event_batch.size() ? _fbb.CreateVector<::flatbuffers::Offset<void>>(_o->event_batch.size(), [](size_t i, _VectorArgs *__va) { return __va->__o->event_batch[i].Pack(*__va->__fbb, __va->__rehasher); }, &_va) : 0;
   return MyGame::Events::CreatePlayerEvent(
       _fbb,
       _ts,
       _event_type,
-      _event,
-      _event_batch_type,
+      _event);
+}
+
+inline EventBatchT::EventBatchT(const EventBatchT &o) {
+  event_batch.reserve(o.event_batch.size());
+  for (const auto &event_batch_ : o.event_batch) { event_batch.emplace_back((event_batch_) ? new MyGame::Events::PlayerEventT(*event_batch_) : nullptr); }
+}
+
+inline EventBatchT &EventBatchT::operator=(EventBatchT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(event_batch, o.event_batch);
+  return *this;
+}
+
+inline EventBatchT *EventBatch::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<EventBatchT>(new EventBatchT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void EventBatch::UnPackTo(EventBatchT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = event_batch(); if (_e) { _o->event_batch.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->event_batch[_i]) { _e->Get(_i)->UnPackTo(_o->event_batch[_i].get(), _resolver); } else { _o->event_batch[_i] = std::unique_ptr<MyGame::Events::PlayerEventT>(_e->Get(_i)->UnPack(_resolver)); }; } } else { _o->event_batch.resize(0); } }
+}
+
+inline ::flatbuffers::Offset<EventBatch> EventBatch::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const EventBatchT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return CreateEventBatch(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<EventBatch> CreateEventBatch(::flatbuffers::FlatBufferBuilder &_fbb, const EventBatchT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const EventBatchT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _event_batch = _o->event_batch.size() ? _fbb.CreateVector<::flatbuffers::Offset<MyGame::Events::PlayerEvent>> (_o->event_batch.size(), [](size_t i, _VectorArgs *__va) { return CreatePlayerEvent(*__va->__fbb, __va->__o->event_batch[i].get(), __va->__rehasher); }, &_va ) : 0;
+  return MyGame::Events::CreateEventBatch(
+      _fbb,
       _event_batch);
 }
 

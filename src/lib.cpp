@@ -27,29 +27,26 @@ uint8_t *MyGame::CreateArrayPlayerMovedBuffer(
   return CreateArrayPlayerMovedBuffer(builder, players);
 }
 
-uint8_t *MyGame::CreateArrayPlayerMovedBuffer(
-    flatbuffers::FlatBufferBuilder &builder,
-    std::vector<std::tuple<Events::UUID, Events::Point3D, Events::Point3D>>
-        players) {
+uint8_t *
+MyGame::CreateArrayPlayerMovedBuffer(flatbuffers::FlatBufferBuilder &builder,
+                                     std::vector<PlayerMovementTuple> players) {
   std::vector<uint8_t> eventTypeVector;
-  std::vector<flatbuffers::Offset<void>> eventVector;
+  std::vector<flatbuffers::Offset<Events::PlayerEvent>> eventVector;
 
   for (auto playerPos : players) {
     auto pm = Events::CreatePlayerMoved(builder, &std::get<0>(playerPos),
                                         &std::get<1>(playerPos),
                                         &std::get<2>(playerPos));
-    eventVector.push_back(pm.Union());
-    eventTypeVector.push_back(Events::Event_PlayerMoved);
+
+    auto playerEvent = Events::CreatePlayerEvent(
+        builder, get_ts(), Events::Event_PlayerMoved, pm.Union());
+    eventVector.push_back(playerEvent);
   }
 
-  auto eventBatch = builder.CreateVector(eventVector);
-  auto eventBatchTypes = builder.CreateVector(eventTypeVector);
+  auto events = builder.CreateVector(eventVector);
+  auto eventBatch = Events::CreateEventBatch(builder, events);
 
-  auto playerEventBuilder = Events::PlayerEventBuilder(builder);
-  playerEventBuilder.add_ts(get_ts());
-  playerEventBuilder.add_event_batch(eventBatch);
-  playerEventBuilder.add_event_batch_type(eventBatchTypes);
-  builder.Finish(playerEventBuilder.Finish());
+  builder.Finish(eventBatch);
 
   return builder.GetBufferPointer();
 }

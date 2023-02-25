@@ -27,7 +27,10 @@ union Event {PlayerSpawn, PlayerMoved}
 table PlayerEvent {
     ts: uint64;
     event: Event;
-    event_batch: [Event];
+}
+
+table EventBatch {
+  event_batch: [PlayerEvent];
 }
 
 root_type PlayerEvent;
