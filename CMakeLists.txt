@@ -17,8 +17,12 @@ else ()
     set(TARGET_DIR "release")
 endif ()
 
-# TODO Identify platform (mac-dylib, linux-so)
-set(CLIENT_SO "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_DIR}/librust_fb.dylib")
+if( CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    set(LIBRARY_EXT "dylib")
+else ()
+    set(LIBRARY_EXT "so")
+endif()
+set(CLIENT_SO "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_DIR}/librust_fb.${LIBRARY_EXT}")
 
 add_custom_target(client ALL
     COMMENT "Compiling client module"

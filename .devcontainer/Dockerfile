@@ -14,4 +14,5 @@ RUN wget https://apt.llvm.org/llvm.sh &&\
 
 # Install git, cmake, gdb
 RUN set -ex && \
-    apt-get install -y cmake gdb curl
+    apt-get install -y cmake gdb curl && \
+    rustup default nightly

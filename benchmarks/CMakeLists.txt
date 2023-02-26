@@ -29,10 +29,9 @@ add_executable(${BINARY} simple_message.cpp batch_messages.cpp simple_json.cpp)
 
 set(CLIENT_BUILD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../rust-fb)
 target_include_directories(${BINARY} PRIVATE ${CLIENT_BUILD_DIR})
-# include_directories(${CLIENT_BUILD_DIR})
 
 add_test(NAME ${BINARY} COMMAND ${BINARY})
 
 target_link_libraries(${BINARY} PUBLIC ${CMAKE_PROJECT_NAME}_lib 
-  benchmark::benchmark nlohmann_json::nlohmann_json ${CLIENT_SO_LOC}/librust_fb.dylib)
+  benchmark::benchmark nlohmann_json::nlohmann_json ${CLIENT_SO_LOC}/librust_fb.${LIBRARY_EXT})
   add_dependencies(${BINARY} client)

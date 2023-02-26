@@ -18,7 +18,9 @@
 				"ms-vscode.cpptools-extension-pack",
 				"ms-vscode.cmake-tools",
 				"twxs.cmake",
-				"xaver.clang-format"
+				"xaver.clang-format",
+				"rust-lang.rust-analyzer",
+				"Swellaby.rust-pack"
 			]
 		}
 	}
